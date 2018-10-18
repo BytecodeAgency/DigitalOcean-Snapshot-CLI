@@ -9,6 +9,7 @@ load_dotenv()
 DO_TOKEN = os.environ['DO_TOKEN']
 MATTERMOST_WEBHOOK_URL = os.environ['MATTERMOST_WEBHOOK_URL']
 
+
 class DropletUtils():
     def __init__(self, do_token, mattermost_webhook_url):
         self.manager = digitalocean.Manager(token=do_token)
@@ -44,24 +45,28 @@ class DropletUtils():
             return False
 
     def create_snapshot_of_droplets(self, droplets):
-        droplet_statusses = {}
+        droplet_statusses = []
         for droplet in droplets:
             snapshot_success = self.create_snapshot_of_droplet(droplet.id)
-            droplet_statusses[f'{droplet.name (droplet.id)}'] = snapshot_success
+            droplet_identifier = f'{droplet.name} ({droplet.id})'
+            droplet_status = {
+                'identifier': droplet_identifier, 'status': snapshot_success
+            }
+            droplet_statusses.append(droplet_status)
         self.notify_statusses(droplet_statusses)
 
     # TODO: Add time started and time completed
     def notify_statusses(self, droplet_statusses):
-        notification_message = '''
-            Snapshot report:\n\n
-            | Droplet name (id) | Status |
-            | ----------------- | ------ |
-        '''
-        for droplet_status in droplet_statusses:
-            notification_message += f'''
-                | {droplet_status} | {droplet_statusses[droplet_status]} |
-            '''
+        notification_message = ''
+        notification_message += 'Snapshot report:'
+        notification_message += '\n\n'
+        notification_message += '| Droplet name (id) | Status |\n'
+        notification_message += '| ----------------- | ------ |\n'
+        for droplet in droplet_statusses:
+            new_row = f"| {droplet['identifier']} | {droplet['status']} |\n"
+            notification_message += new_row
         self.notifier.send_mattermost_notification(notification_message)
+
 
 class DropletCliTools():
     def __init__(self, do_token, mattermost_webhook_url):
@@ -69,7 +74,7 @@ class DropletCliTools():
 
     def save_droplets_to_file(self):
         droplets = self.dropletUtils.get_all_droplets()
-        droplets_file = open('droplets.csv','w')
+        droplets_file = open('droplets.csv', 'w')
         droplets_file.write(f'id,name,tags\n')
         try:
             for droplet in droplets:
@@ -92,7 +97,7 @@ class DropletCliTools():
         csv_file = csv.reader(open(filename, 'r'))
         for line in csv_file:
             droplet_ids.append(line[0])
-        droplet_ids.pop(0) # Delete 'id' from list
+        droplet_ids.pop(0)  # Delete 'id' from list
         return droplet_ids
 
     def create_droplet_list_from_file(self, filename):
@@ -104,12 +109,13 @@ class DropletCliTools():
         droplets = self.create_droplet_list_from_file(filename)
         self.dropletUtils.create_snapshot_of_droplets(droplets)
 
+
 class MattermostNotifier():
     def __init__(self, mattermost_webhook_url):
         self.mattermost_webhook_url = mattermost_webhook_url
 
     def generate_mattermost_payload(self, message):
-        payload_data = { 'text': message }
+        payload_data = {'text': message}
         payload_json = json.dumps(payload_data)
         return payload_json
 
@@ -120,3 +126,11 @@ class MattermostNotifier():
             print(f'Mattermost notification sent successfully: {response}')
         except:
             print('Mattermost notification errored')
+
+
+def run_select():
+    test = DropletCliTools(DO_TOKEN, MATTERMOST_WEBHOOK_URL)
+    test.create_snapshot_for_droplets_in_csv('droplets.csv')
+run_select()
+
+
