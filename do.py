@@ -55,7 +55,6 @@ class DropletUtils():
             droplet_statusses.append(droplet_status)
         self.notify_statusses(droplet_statusses)
 
-    # TODO: Add time started and time completed
     def notify_statusses(self, droplet_statusses):
         notification_message = ''
         notification_message += 'Snapshot report:'
