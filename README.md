@@ -19,3 +19,4 @@
 * Write CLI documentation
 * Add install script for CLI
 * Add easy cron support
+* Replace external dependencies with self-written ones
