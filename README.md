@@ -12,6 +12,8 @@
 
 ## TODO
 
+* Improve names of snapshots
+* Improve notification, show Success/Failed instead of True/False
 * Auto delete old snapshots
 * Add CLI script
 * Write CLI documentation
