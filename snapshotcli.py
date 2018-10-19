@@ -6,9 +6,10 @@ load_dotenv()
 DO_TOKEN = os.environ['DO_TOKEN']
 MATTERMOST_WEBHOOK_URL = os.environ['MATTERMOST_WEBHOOK_URL']
 
+cli_tools = DropletCliTools(DO_TOKEN, MATTERMOST_WEBHOOK_URL)
+
 def run_select():
-    test = DropletCliTools(DO_TOKEN, MATTERMOST_WEBHOOK_URL)
-    test.create_snapshot_for_droplets_in_csv('droplets.csv')
+    cli_tools.create_snapshot_for_droplets_in_csv('droplets.csv')
 run_select()
 
 
