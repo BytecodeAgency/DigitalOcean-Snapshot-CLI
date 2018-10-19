@@ -1,11 +1,13 @@
 from src.mattermostnotifier import MattermostNotifier
 import digitalocean
+from datetime import date
 
 class DropletUtils():
     def __init__(self, do_token, mattermost_webhook_url):
         self.manager = digitalocean.Manager(token=do_token)
         self.all_droplets = self.manager.get_all_droplets()
         self.notifier = MattermostNotifier(mattermost_webhook_url)
+        self.auto_snapshot_identifier = 'auto-snapshot'
 
     def get_manager(self):
         return self.manager
@@ -24,11 +26,22 @@ class DropletUtils():
             droplet_ids.append(droplet.id)
         return droplet_ids
 
+    def get_all_auto_snapshots(self):
+        snapshots = self.get_manager().get_all_snapshots()
+        auto_snapshots = []
+        for snapshot in snapshots:
+            if self.auto_snapshot_identifier in snapshot.name:
+                auto_snapshots.append(snapshot)
+        return auto_snapshots
+
     def create_snapshot_of_droplet(self, droplet_id):
-        droplet = self.manager.get_droplet(droplet_id)
+        droplet = self.get_manager().get_droplet(droplet_id)
         print(f'Creating snapshot for {droplet.name} ({droplet.id})')
         try:
-            droplet.take_snapshot(droplet.name)
+            identifier = self.auto_snapshot_identifier
+            date_today = date.today()
+            snapshot_name = f'{identifier} of {droplet.name} on {date_today}'
+            droplet.take_snapshot(snapshot_name)
             print(f'Snapshot for {droplet.name} ({droplet.id}) started')
             return True
         except:
