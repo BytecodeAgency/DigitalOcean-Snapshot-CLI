@@ -17,6 +17,8 @@
 * Auto delete old snapshots
 * Add CLI script
 * Write CLI documentation
+* Write technical documentation for development
 * Add install script for CLI
 * Add easy cron support
 * Replace external dependencies with self-written ones
+* Add open source/free (as in freedom) software license
