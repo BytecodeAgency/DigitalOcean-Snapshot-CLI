@@ -8,3 +8,4 @@
 * Write CLI documentation
 * Add install script
 * Add easy cron support
+* Replace external dependencies with self-written ones
